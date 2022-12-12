@@ -141,6 +141,7 @@ class View:
 
 def main(args):
     buffer = QUEUE_TYPES[args.queue]()
+    products = PRIORITIZED_PRODUCTS if args.queue == "heap" else PRODUCTS
     producers = [Producer(args.producer_speed, buffer, PRODUCTS) for _ in range(args.producers)]
     consumers = [Consumer(args.consumer_speed,buffer) for _ in range(args.consumers)]
     for producer in producers:
