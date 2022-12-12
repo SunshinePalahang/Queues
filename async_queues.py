@@ -17,6 +17,7 @@ async def main (args):
     try:
         links = Counter()
         queue = asyncio.Queue()
+        # queue =  asyncio.LifoQueue()
         tasks= [
             asyncio.create_task(
                 worker(
