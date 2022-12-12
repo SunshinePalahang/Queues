@@ -41,7 +41,10 @@ class Product:
     priority: int
     label: str= field(compare=False)
 
-class Priority(IntNum):
+    def __str__(self):
+        return self.label
+
+class Priority(IntEnum):
     HIGH = 1
     MEDIUM = 2
     LOW = 3
@@ -155,7 +158,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-q","--queue", choice = QUEUE_TYPES, default="fifo")
+    parser.add_argument("-q","--queue", choices = QUEUE_TYPES, default="fifo")
     parser.add_argument("-p", "--producers", type=int, default=3)
     parser.add_argument("-c", "--consumers", type=int, default=2)
     parser.add_argument("-ps", "--producer-speed", type=int, default=1)
