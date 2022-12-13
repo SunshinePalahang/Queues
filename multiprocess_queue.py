@@ -1,5 +1,6 @@
 import time
 import multiprocessing
+import argparse
 from hashlib import md5
 from string import ascii_lowercase
 from dataclasses import dataclass
@@ -69,10 +70,33 @@ def chunk_indices(length, num_chunks):
 #             if hashed == hash_value:
 #                 return text_bytes.decode("utf-8")
 
-def main():
+def main(args):
     t1 = time.perf_counter()
+    queue_in = multiprocessing.Queue()
+    queue_out = multiprocessing.Queue()
+
+    workers = [
+        Worker(queue_in, queue_out, args.hash_value)
+        for _ in range (args.num_workers)
+    ]
+
+    for worker in workers:
+        worker.start
+
+    for text_length in range (1, args.max_length +1):
+        combinations = Combinations(ascii_lowercase, text_length)
+        for indices in chunk_indices(len(combinations), len(workers)):
+            queue_in.put(Job(combinations, *indices))
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("hash_value")
+    parser.add_argument("-m", "--max-length", type=int, default=6)
+    parser.add_argument("-w", "--num-workers", type=int, default=multiprocessing.cpu_count())
+    return parser.parse_args()
+
     # text =  reverse_md5("a9d1cbf71942327e98b40cf5ef38a960")
-    print(f"{text}(found in {time.perf_counter()-  t1:.1f}s)")
+    # print(f"{text}(found in {time.perf_counter()-  t1:.1f}s)")
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())
