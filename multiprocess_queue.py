@@ -3,6 +3,24 @@ from hashlib import md5
 from itertools import product
 from string import ascii_lowercase
 
+class Combinations:
+    def __init__(self, alphabet, length):
+        self.alphabet = alphabet
+        self.length = length
+
+    def __len__(self):
+        return len(self.alphabet) ** self.length
+
+    def __getitem__(self, index):
+        if index >= len(self):
+            raise IndexError
+        return "".join(
+            self.alphabet[
+                (index // len(self.alphabet) ** i) % len(self.alphabet)
+            ]
+            for i in reversed(range(self.length))
+        )
+
 def chunk_indices(length, num_chunks):
     start = 0
     while num_chunks >0:
