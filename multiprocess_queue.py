@@ -7,6 +7,7 @@ from hashlib import md5
 from string import ascii_lowercase
 from dataclasses import dataclass
 
+POISON_PILL = None
 
 class Combinations:
     def __init__(self, alphabet, length):
