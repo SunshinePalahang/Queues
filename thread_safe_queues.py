@@ -73,9 +73,9 @@ class Worker (threading.Thread):
         self.product = None
         self.working =  False
         self.progress = 0
-        sleep(randint(1,3))
+        sleep(randint(1, 3))
     
-    def simulate_work (self):
+    def simulate_work(self):
         self.working = True
         self.progress = 0
         delay = randint(1, 1+15 // self.speed)
@@ -100,7 +100,7 @@ class Consumer(Worker):
         while True:
             self.product = self.buffer.get()
             self.simulate_work()
-            self.buffer.task.done()
+            self.buffer.task_done()
             self.simulate_idle()
 
 class View:
@@ -110,9 +110,7 @@ class View:
         self.consumers = consumers
     
     def animate(self):
-        with Live(
-            self.render(), screen = True, refresh_per_second=10
-        ) as live:
+        with Live(self.render(), screen = True, refresh_per_second=10) as live:
             while True:
                 live.update(self.render())
 
@@ -145,8 +143,13 @@ class View:
 def main(args):
     buffer = QUEUE_TYPES[args.queue]()
     products = PRIORITIZED_PRODUCTS if args.queue == "heap" else PRODUCTS
-    producers = [Producer(args.producer_speed, buffer, PRODUCTS) for _ in range(args.producers)]
-    consumers = [Consumer(args.consumer_speed,buffer) for _ in range(args.consumers)]
+    producers = [
+        Producer(args.producer_speed, buffer, products) 
+        for _ in range(args.producers)
+        ]
+    consumers = [
+        Consumer(args.consumer_speed, buffer) for _ in range(args.consumers)]
+    
     for producer in producers:
         producer.start()
 
