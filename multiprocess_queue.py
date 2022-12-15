@@ -49,32 +49,15 @@ class Worker(multiprocessing.Process):
         self.queue_out =  queue_out
         self.hash_value = hash_value
 
-def run(self):
-    while True:
-        job = self.queue_in.get()
-        if job is POISON_PILL:
-            self.queue_in.put(POISON_PILL)
-            break
-        if plaintext := job(self.hash_value):
-            self.queue_out.put(plaintext)
-            break
-
-def chunk_indices(length, num_chunks):
-    start = 0
-    while num_chunks >0:
-        num_chunks = min(num_chunks, length)
-        chunk_size =  round(length/num_chunks)
-        yield start, (start:= start+chunk_size)
-        length -= chunk_size
-        num_chunks -=1
-
-# def reverse_md5(hash_value, alphabet=ascii_lowercase, max_length=6):
-#     for length in range (1, max_length+1):
-#         for combination in Combinations(alphabet, length):
-#             text_bytes = "".join(combination).encode("utf-8")
-#             hashed = md5(text_bytes).hexdigest()
-#             if hashed == hash_value:
-#                 return text_bytes.decode("utf-8")
+    def run(self):
+        while True:
+            job = self.queue_in.get()
+            if job is POISON_PILL:
+                self.queue_in.put(POISON_PILL)
+                break
+            if plaintext := job(self.hash_value):
+                self.queue_out.put(plaintext)
+                break
 
 def main(args):
     t1 = time.perf_counter()
@@ -87,7 +70,7 @@ def main(args):
     ]
 
     for worker in workers:
-        worker.start
+        worker.start()
 
     for text_length in range (1, args.max_length +1):
         combinations = Combinations(ascii_lowercase, text_length)
@@ -108,7 +91,6 @@ def main(args):
         else:
             print("Unable to find a solution")
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("hash_value")
@@ -118,6 +100,25 @@ def parse_args():
 
     # text =  reverse_md5("a9d1cbf71942327e98b40cf5ef38a960")
     # print(f"{text}(found in {time.perf_counter()-  t1:.1f}s)")
+
+
+def chunk_indices(length, num_chunks):
+    start = 0
+    while num_chunks >0:
+        num_chunks = min(num_chunks, length)
+        chunk_size =  round(length/num_chunks)
+        yield start, (start:= start+chunk_size)
+        length -= chunk_size
+        num_chunks -=1
+
+# def reverse_md5(hash_value, alphabet=ascii_lowercase, max_length=6):
+#     for length in range (1, max_length+1):
+#         for combination in Combinations(alphabet, length):
+#             text_bytes = "".join(combination).encode("utf-8")
+#             hashed = md5(text_bytes).hexdigest()
+#             if hashed == hash_value:
+#                 return text_bytes.decode("utf-8")
+
 
 if __name__ == "__main__":
     main(parse_args())
